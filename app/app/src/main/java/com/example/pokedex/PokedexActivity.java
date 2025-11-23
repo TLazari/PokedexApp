@@ -9,6 +9,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.LinearLayout;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -38,6 +39,7 @@ public class PokedexActivity extends AppCompatActivity {
     private TextView tvPokemonName;
     private TextView tvPokemonType;
     private TextView tvBoasVindas;
+    private View llSearchPlaceholder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,9 +59,10 @@ public class PokedexActivity extends AppCompatActivity {
         ivPokemon = findViewById(R.id.ivPokemon);
         tvPokemonName = findViewById(R.id.tvPokemonName);
         tvPokemonType = findViewById(R.id.tvPokemonType);
+        llSearchPlaceholder = findViewById(R.id.llSearchPlaceholder);
 
         String nome = getIntent().getStringExtra("TREINADOR_NOME");
-        if (nome != null) {
+        if (nome != null && !nome.trim().isEmpty()) {
             tvBoasVindas.setText(getString(R.string.boas_vindas_mensagem, nome));
         } else {
             tvBoasVindas.setText(getString(R.string.boas_vindas_padrao));
@@ -79,7 +82,6 @@ public class PokedexActivity extends AppCompatActivity {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Handler handler = new Handler(Looper.getMainLooper());
 
-        // Mostrar feedback visual de carregamento (opcional, aqui apenas desativamos o botão)
         btnSearch.setEnabled(false);
 
         executor.execute(() -> {
@@ -111,6 +113,7 @@ public class PokedexActivity extends AppCompatActivity {
                 } else {
                     Toast.makeText(PokedexActivity.this, "Pokémon não encontrado", Toast.LENGTH_SHORT).show();
                     cardResult.setVisibility(View.GONE);
+                    llSearchPlaceholder.setVisibility(View.VISIBLE);
                 }
             });
         });
@@ -121,7 +124,6 @@ public class PokedexActivity extends AppCompatActivity {
             JSONObject jsonObject = new JSONObject(jsonResponse);
             String name = jsonObject.getString("name");
             
-            // Capitalizar primeira letra
             if (name.length() > 0) {
                 name = name.substring(0, 1).toUpperCase() + name.substring(1);
             }
@@ -132,7 +134,7 @@ public class PokedexActivity extends AppCompatActivity {
                 JSONObject typeObj = typesArray.getJSONObject(i).getJSONObject("type");
                 if (i > 0) typesBuilder.append(", ");
                 String typeName = typeObj.getString("name");
-                // Capitalizar tipo
+
                 if (typeName.length() > 0) {
                     typeName = typeName.substring(0, 1).toUpperCase() + typeName.substring(1);
                 }
@@ -144,7 +146,6 @@ public class PokedexActivity extends AppCompatActivity {
             tvPokemonName.setText(getString(R.string.nome_pokemon) + " " + name);
             tvPokemonType.setText(getString(R.string.tipo_pokemon) + " " + typesBuilder.toString());
             
-            // Limpa a imagem anterior antes de carregar a nova
             Glide.with(this).clear(ivPokemon);
             Glide.with(this)
                     .load(imageUrl)
@@ -152,10 +153,13 @@ public class PokedexActivity extends AppCompatActivity {
                     .into(ivPokemon);
 
             cardResult.setVisibility(View.VISIBLE);
+            llSearchPlaceholder.setVisibility(View.GONE);
 
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(this, "Erro ao processar dados", Toast.LENGTH_SHORT).show();
+            cardResult.setVisibility(View.GONE);
+            llSearchPlaceholder.setVisibility(View.VISIBLE);
         }
     }
 }

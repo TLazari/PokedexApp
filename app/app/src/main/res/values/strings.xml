@@ -1,8 +1,13 @@
 <resources>
-    <string name="app_name">Pokedex</string>
+    <string name="app_name">PokéApp</string>
+    <string name="welcome_title">Torne-se um Treinador Pokémon!</string>
+    <string name="welcome_subtitle">Qual é o seu nome de treinador?</string>
+    <string name="trainer_name_hint">Digite seu nome...</string>
+    <string name="start_journey_button">Iniciar Minha Jornada</string>
+
     <string name="digite_nome">Digite o nome do treinador:</string>
     <string name="entrar">Entrar no Pokedex</string>
-    <string name="digite_numero">Digite o número do Pokémon:</string>
+    <string name="digite_numero">Digite o nome ou número do Pokémon:</string>
     <string name="pesquisar">Pesquisar</string>
     <string name="nome_pokemon">Nome:</string>
     <string name="tipo_pokemon">Tipo:</string>
@@ -11,4 +16,9 @@
     <string name="boas_vindas_mensagem">Bem-vindo, %1$s!</string>
     <string name="boas_vindas_padrao">Bem-vindo, Treinador!</string>
     <string name="hint_nome_treinador">Nome do treinador</string>
+
+    <string name="pokedex_title">Pesquisa Pokédex</string>
+    <string name="search_pokemon_title">Procure por um Pokémon</string>
+    <string name="search_pokemon_subtitle">Digite o nome de um Pokémon abaixo para ver sua imagem aqui.</string>
+    <string name="pokemon_search_hint">Pikachu...</string>
 </resources>
