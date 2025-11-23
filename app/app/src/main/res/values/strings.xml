@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Pokedex</string>
+    <string name="digite_nome">Digite o nome do treinador:</string>
+    <string name="entrar">Entrar no Pokedex</string>
+    <string name="digite_numero">Digite o número do Pokémon:</string>
+    <string name="pesquisar">Pesquisar</string>
+    <string name="nome_pokemon">Nome:</string>
+    <string name="tipo_pokemon">Tipo:</string>
+    <string name="seu_pokemon">Seu Pokémon</string>
+    <string name="treinador_nome">Treinador:</string>
+</resources>
