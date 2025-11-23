@@ -38,6 +38,10 @@ public class PokedexActivity extends AppCompatActivity {
     private ImageView ivPokemon;
     private TextView tvPokemonName;
     private TextView tvPokemonType;
+    private TextView tvPokemonHeight;
+    private TextView tvPokemonWeight;
+    private TextView tvPokemonAbilities;
+    private TextView tvPokemonStats;
     private TextView tvBoasVindas;
     private View llSearchPlaceholder;
 
@@ -59,6 +63,10 @@ public class PokedexActivity extends AppCompatActivity {
         ivPokemon = findViewById(R.id.ivPokemon);
         tvPokemonName = findViewById(R.id.tvPokemonName);
         tvPokemonType = findViewById(R.id.tvPokemonType);
+        tvPokemonHeight = findViewById(R.id.tvPokemonHeight);
+        tvPokemonWeight = findViewById(R.id.tvPokemonWeight);
+        tvPokemonAbilities = findViewById(R.id.tvPokemonAbilities);
+        tvPokemonStats = findViewById(R.id.tvPokemonStats);
         llSearchPlaceholder = findViewById(R.id.llSearchPlaceholder);
 
         String nome = getIntent().getStringExtra("TREINADOR_NOME");
@@ -122,34 +130,92 @@ public class PokedexActivity extends AppCompatActivity {
     private void parseAndShowResult(String jsonResponse) {
         try {
             JSONObject jsonObject = new JSONObject(jsonResponse);
-            String name = jsonObject.getString("name");
             
+            // Name
+            String name = jsonObject.getString("name");
             if (name.length() > 0) {
                 name = name.substring(0, 1).toUpperCase() + name.substring(1);
             }
 
+            // Types
             JSONArray typesArray = jsonObject.getJSONArray("types");
             StringBuilder typesBuilder = new StringBuilder();
             for (int i = 0; i < typesArray.length(); i++) {
                 JSONObject typeObj = typesArray.getJSONObject(i).getJSONObject("type");
                 if (i > 0) typesBuilder.append(", ");
                 String typeName = typeObj.getString("name");
-
                 if (typeName.length() > 0) {
                     typeName = typeName.substring(0, 1).toUpperCase() + typeName.substring(1);
                 }
                 typesBuilder.append(typeName);
             }
 
-            String imageUrl = jsonObject.getJSONObject("sprites").getString("front_default");
+            // Height and Weight
+            double height = jsonObject.getInt("height") / 10.0; // decimeters to meters
+            double weight = jsonObject.getInt("weight") / 10.0; // hectograms to kilograms
 
-            tvPokemonName.setText(getString(R.string.nome_pokemon) + " " + name);
-            tvPokemonType.setText(getString(R.string.tipo_pokemon) + " " + typesBuilder.toString());
+            // Abilities
+            JSONArray abilitiesArray = jsonObject.getJSONArray("abilities");
+            StringBuilder abilitiesBuilder = new StringBuilder();
+            for (int i = 0; i < abilitiesArray.length(); i++) {
+                JSONObject abilityObj = abilitiesArray.getJSONObject(i).getJSONObject("ability");
+                if (i > 0) abilitiesBuilder.append(", ");
+                String abilityName = abilityObj.getString("name").replace("-", " ");
+                if (abilityName.length() > 0) {
+                    abilityName = abilityName.substring(0, 1).toUpperCase() + abilityName.substring(1);
+                }
+                abilitiesBuilder.append(abilityName);
+            }
+
+            // Stats
+            JSONArray statsArray = jsonObject.getJSONArray("stats");
+            StringBuilder statsBuilder = new StringBuilder();
+            for (int i = 0; i < statsArray.length(); i++) {
+                JSONObject statObj = statsArray.getJSONObject(i);
+                int baseStat = statObj.getInt("base_stat");
+                String statName = statObj.getJSONObject("stat").getString("name");
+                
+                // Shorten stat names
+                switch(statName) {
+                    case "hp": statName = "HP"; break;
+                    case "attack": statName = "ATK"; break;
+                    case "defense": statName = "DEF"; break;
+                    case "special-attack": statName = "SpA"; break;
+                    case "special-defense": statName = "SpD"; break;
+                    case "speed": statName = "SPD"; break;
+                    default: statName = statName.toUpperCase();
+                }
+                
+                if (i > 0) statsBuilder.append("\n");
+                statsBuilder.append(statName).append(": ").append(baseStat);
+            }
+
+            // Image - Try official artwork first, then default
+            String imageUrl = "";
+            try {
+                imageUrl = jsonObject.getJSONObject("sprites").getJSONObject("other").getJSONObject("official-artwork").getString("front_default");
+            } catch (Exception e) {
+                // Fallback
+                try {
+                     imageUrl = jsonObject.getJSONObject("sprites").getString("front_default");
+                } catch (Exception e2) {
+                    e2.printStackTrace();
+                }
+            }
+
+            // Update UI
+            tvPokemonName.setText(name);
+            tvPokemonType.setText(typesBuilder.toString());
+            tvPokemonHeight.setText(getString(R.string.altura_pokemon, String.valueOf(height)));
+            tvPokemonWeight.setText(getString(R.string.peso_pokemon, String.valueOf(weight)));
+            tvPokemonAbilities.setText(abilitiesBuilder.toString());
+            tvPokemonStats.setText(statsBuilder.toString());
             
             Glide.with(this).clear(ivPokemon);
             Glide.with(this)
                     .load(imageUrl)
                     .placeholder(R.drawable.ic_launcher_foreground)
+                    .error(R.drawable.ic_launcher_foreground)
                     .into(ivPokemon);
 
             cardResult.setVisibility(View.VISIBLE);

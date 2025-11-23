@@ -21,4 +21,9 @@
     <string name="search_pokemon_title">Procure por um Pokémon</string>
     <string name="search_pokemon_subtitle">Digite o nome de um Pokémon abaixo para ver sua imagem aqui.</string>
     <string name="pokemon_search_hint">Pikachu...</string>
+    
+    <string name="altura_pokemon">Altura: %1$s m</string>
+    <string name="peso_pokemon">Peso: %1$s kg</string>
+    <string name="habilidades_pokemon">Habilidades:</string>
+    <string name="stats_pokemon">Estatísticas Base</string>
 </resources>
