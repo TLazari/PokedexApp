@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html class="light dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Pokédex Search</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#EF5350",
+                        "background-light": "#F5F5F5",
+                        "background-dark": "#1a2035",
+                        "text-light": "#2D3A5E",
+                        "text-dark": "#EAEAEA",
+                        "accent": "#FFCB05"
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "1rem",
+                        "lg": "1.5rem",
+                        "xl": "2rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-display">
+<div class="relative flex h-screen min-h-screen w-full flex-col bg-background-light dark:bg-background-dark group/design-root overflow-hidden">
+<header class="flex items-center p-4 justify-between w-full">
+<span class="material-symbols-outlined text-accent text-3xl">capture</span>
+<h1 class="text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center text-text-light dark:text-text-dark">Pokédex Search</h1>
+<div class="size-8"></div> 
+</header>
+<main class="flex flex-1 flex-col justify-center items-center px-4 py-6 space-y-8">
+<div class="flex flex-col items-center gap-6 w-full max-w-sm">
+<div class="flex items-center justify-center bg-black/5 dark:bg-white/5 aspect-square rounded-full w-full max-w-[280px]">
+<span class="material-symbols-outlined text-text-light/30 dark:text-text-dark/30 text-8xl" data-icon="CatchingPokemon">capture</span>
+</div>
+<div class="flex max-w-[480px] flex-col items-center gap-2">
+<p class="text-text-light dark:text-text-dark text-lg font-bold leading-tight tracking-[-0.015em] text-center">Search for a Pokémon</p>
+<p class="text-text-light/70 dark:text-text-dark/70 text-sm font-normal leading-normal text-center">Enter a Pokémon's name below to see its image here.</p>
+</div>
+</div>
+<div class="w-full max-w-sm space-y-4">
+<label class="flex flex-col w-full">
+<div class="flex w-full flex-1 items-stretch rounded-lg shadow-sm">
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-black/10 dark:border-white/10 bg-white/50 dark:bg-black/20 h-14 placeholder:text-text-light/50 dark:placeholder:text-text-dark/50 px-4 text-base font-normal leading-normal" placeholder="Pikachu..." value=""/>
+</div>
+</label>
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-12 px-5 flex-1 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] w-full shadow-lg shadow-primary/30 hover:bg-primary/90 transition-colors">
+<span class="truncate">Search</span>
+</button>
+</div>
+</main>
+</div>
+</body></html>

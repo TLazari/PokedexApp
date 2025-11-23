@@ -8,4 +8,7 @@
     <string name="tipo_pokemon">Tipo:</string>
     <string name="seu_pokemon">Seu Pokémon</string>
     <string name="treinador_nome">Treinador:</string>
+    <string name="boas_vindas_mensagem">Bem-vindo, %1$s!</string>
+    <string name="boas_vindas_padrao">Bem-vindo, Treinador!</string>
+    <string name="hint_nome_treinador">Nome do treinador</string>
 </resources>
