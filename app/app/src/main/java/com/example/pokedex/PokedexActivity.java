@@ -10,8 +10,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.LinearLayout;
+import android.graphics.drawable.Drawable;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.graphics.Insets;
@@ -19,6 +21,10 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -132,78 +138,94 @@ public class PokedexActivity extends AppCompatActivity {
             JSONObject jsonObject = new JSONObject(jsonResponse);
             
             // Name
-            String name = jsonObject.getString("name");
+            String name = jsonObject.optString("name", "Unknown");
             if (name.length() > 0) {
                 name = name.substring(0, 1).toUpperCase() + name.substring(1);
             }
 
             // Types
-            JSONArray typesArray = jsonObject.getJSONArray("types");
+            JSONArray typesArray = jsonObject.optJSONArray("types");
             StringBuilder typesBuilder = new StringBuilder();
-            for (int i = 0; i < typesArray.length(); i++) {
-                JSONObject typeObj = typesArray.getJSONObject(i).getJSONObject("type");
-                if (i > 0) typesBuilder.append(", ");
-                String typeName = typeObj.getString("name");
-                if (typeName.length() > 0) {
-                    typeName = typeName.substring(0, 1).toUpperCase() + typeName.substring(1);
+            if (typesArray != null) {
+                for (int i = 0; i < typesArray.length(); i++) {
+                    JSONObject typeObj = typesArray.getJSONObject(i).getJSONObject("type");
+                    if (i > 0) typesBuilder.append(", ");
+                    String typeName = typeObj.getString("name");
+                    if (typeName.length() > 0) {
+                        typeName = typeName.substring(0, 1).toUpperCase() + typeName.substring(1);
+                    }
+                    typesBuilder.append(typeName);
                 }
-                typesBuilder.append(typeName);
             }
 
             // Height and Weight
-            double height = jsonObject.getInt("height") / 10.0; // decimeters to meters
-            double weight = jsonObject.getInt("weight") / 10.0; // hectograms to kilograms
+            double height = jsonObject.optInt("height", 0) / 10.0;
+            double weight = jsonObject.optInt("weight", 0) / 10.0;
 
             // Abilities
-            JSONArray abilitiesArray = jsonObject.getJSONArray("abilities");
+            JSONArray abilitiesArray = jsonObject.optJSONArray("abilities");
             StringBuilder abilitiesBuilder = new StringBuilder();
-            for (int i = 0; i < abilitiesArray.length(); i++) {
-                JSONObject abilityObj = abilitiesArray.getJSONObject(i).getJSONObject("ability");
-                if (i > 0) abilitiesBuilder.append(", ");
-                String abilityName = abilityObj.getString("name").replace("-", " ");
-                if (abilityName.length() > 0) {
-                    abilityName = abilityName.substring(0, 1).toUpperCase() + abilityName.substring(1);
+            if (abilitiesArray != null) {
+                for (int i = 0; i < abilitiesArray.length(); i++) {
+                    JSONObject abilityObj = abilitiesArray.getJSONObject(i).getJSONObject("ability");
+                    if (i > 0) abilitiesBuilder.append(", ");
+                    String abilityName = abilityObj.getString("name").replace("-", " ");
+                    if (abilityName.length() > 0) {
+                        abilityName = abilityName.substring(0, 1).toUpperCase() + abilityName.substring(1);
+                    }
+                    abilitiesBuilder.append(abilityName);
                 }
-                abilitiesBuilder.append(abilityName);
             }
 
             // Stats
-            JSONArray statsArray = jsonObject.getJSONArray("stats");
+            JSONArray statsArray = jsonObject.optJSONArray("stats");
             StringBuilder statsBuilder = new StringBuilder();
-            for (int i = 0; i < statsArray.length(); i++) {
-                JSONObject statObj = statsArray.getJSONObject(i);
-                int baseStat = statObj.getInt("base_stat");
-                String statName = statObj.getJSONObject("stat").getString("name");
-                
-                // Shorten stat names
-                switch(statName) {
-                    case "hp": statName = "HP"; break;
-                    case "attack": statName = "ATK"; break;
-                    case "defense": statName = "DEF"; break;
-                    case "special-attack": statName = "SpA"; break;
-                    case "special-defense": statName = "SpD"; break;
-                    case "speed": statName = "SPD"; break;
-                    default: statName = statName.toUpperCase();
-                }
-                
-                if (i > 0) statsBuilder.append("\n");
-                statsBuilder.append(statName).append(": ").append(baseStat);
-            }
-
-            // Image - Try official artwork first, then default
-            String imageUrl = "";
-            try {
-                imageUrl = jsonObject.getJSONObject("sprites").getJSONObject("other").getJSONObject("official-artwork").getString("front_default");
-            } catch (Exception e) {
-                // Fallback
-                try {
-                     imageUrl = jsonObject.getJSONObject("sprites").getString("front_default");
-                } catch (Exception e2) {
-                    e2.printStackTrace();
+            if (statsArray != null) {
+                for (int i = 0; i < statsArray.length(); i++) {
+                    JSONObject statObj = statsArray.getJSONObject(i);
+                    int baseStat = statObj.getInt("base_stat");
+                    String statName = statObj.getJSONObject("stat").getString("name");
+                    
+                    switch(statName) {
+                        case "hp": statName = "HP"; break;
+                        case "attack": statName = "ATK"; break;
+                        case "defense": statName = "DEF"; break;
+                        case "special-attack": statName = "SpA"; break;
+                        case "special-defense": statName = "SpD"; break;
+                        case "speed": statName = "SPD"; break;
+                        default: statName = statName.toUpperCase();
+                    }
+                    
+                    if (i > 0) statsBuilder.append("\n");
+                    statsBuilder.append(statName).append(": ").append(baseStat);
                 }
             }
 
-            // Update UI
+            // Image Strategy: Official Art -> Home -> Default
+            String imageUrl = null;
+            JSONObject sprites = jsonObject.optJSONObject("sprites");
+            if (sprites != null) {
+                // Try Official Artwork
+                JSONObject other = sprites.optJSONObject("other");
+                if (other != null) {
+                    JSONObject officialArt = other.optJSONObject("official-artwork");
+                    if (officialArt != null) {
+                        imageUrl = officialArt.optString("front_default", null);
+                    }
+                    // Try Home if Official Art failed
+                    if (imageUrl == null || imageUrl.isEmpty()) {
+                        JSONObject home = other.optJSONObject("home");
+                        if (home != null) {
+                            imageUrl = home.optString("front_default", null);
+                        }
+                    }
+                }
+                // Fallback to default
+                if (imageUrl == null || imageUrl.isEmpty()) {
+                    imageUrl = sprites.optString("front_default", null);
+                }
+            }
+
             tvPokemonName.setText(name);
             tvPokemonType.setText(typesBuilder.toString());
             tvPokemonHeight.setText(getString(R.string.altura_pokemon, String.valueOf(height)));
@@ -212,11 +234,27 @@ public class PokedexActivity extends AppCompatActivity {
             tvPokemonStats.setText(statsBuilder.toString());
             
             Glide.with(this).clear(ivPokemon);
-            Glide.with(this)
-                    .load(imageUrl)
-                    .placeholder(R.drawable.ic_launcher_foreground)
-                    .error(R.drawable.ic_launcher_foreground)
-                    .into(ivPokemon);
+            
+            if (imageUrl != null && !imageUrl.isEmpty()) {
+                Glide.with(this)
+                        .load(imageUrl)
+                        .placeholder(R.drawable.ic_launcher_foreground)
+                        .error(R.drawable.ic_launcher_foreground)
+                        .listener(new RequestListener<Drawable>() {
+                            @Override
+                            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                return false; // Allow Glide to handle the error view
+                            }
+
+                            @Override
+                            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                return false;
+                            }
+                        })
+                        .into(ivPokemon);
+            } else {
+                ivPokemon.setImageResource(R.drawable.ic_launcher_foreground);
+            }
 
             cardResult.setVisibility(View.VISIBLE);
             llSearchPlaceholder.setVisibility(View.GONE);
